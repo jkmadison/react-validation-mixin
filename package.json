@@ -15,7 +15,6 @@
     "clean": "rimraf lib",
     "lint": "eslint src",
     "prepublish": "npm run clean && npm run build",
-    "prepush": "npm test && npm build",
     "postmerge": "npm install && npm build"
   },
   "repository": {
