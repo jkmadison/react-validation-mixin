@@ -15,7 +15,6 @@
     "clean": "rimraf lib",
     "lint": "eslint src",
     "prepublish": "npm run clean && npm run build",
-    "precommit": "npm test && npm build",
     "prepush": "npm test && npm build",
     "postmerge": "npm install && npm build"
   },
@@ -39,7 +38,6 @@
   },
   "homepage": "https://github.com/jurassix/react-validation-mixin",
   "devDependencies": {
-    "babel": "^6.5.2",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.9.1",
     "babel-eslint": "^6.0.4",
@@ -67,9 +65,8 @@
     "lodash.set": "^4.2.0",
     "mkdirp": "^0.5.1",
     "mocha": "^2.2.5",
-    "react": "^15.1.0",
-    "react-addons-test-utils": "^15.1.0",
-    "react-dom": "^15.1.0",
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0",
     "rimraf": "^2.4.3",
     "watchify": "^3.7.0",
     "webpack": "^1.13.1"

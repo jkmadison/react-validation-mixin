@@ -1,18 +1,21 @@
-import React from 'react';
-import invariant from 'invariant';
-import result from 'lodash.result';
-import factory from '../validationFactory';
-import getDisplayName from 'react-display-name';
-import { defined } from '../utils';
+import React from "react";
+import invariant from "invariant";
+import result from "lodash.result";
+import factory from "../validationFactory";
+import getDisplayName from "react-display-name";
+import { defined } from "../utils";
 
 export default function validationMixin(strategy) {
   const validator = factory(strategy);
   return function wrappedComponentFn(WrappedComponent) {
-    invariant(defined(WrappedComponent), 'Component was not provided to the Validator. Export you Component with "export default validator(strategy)(Component);"');
+    invariant(
+      defined(WrappedComponent),
+      'Component was not provided to the Validator. Export you Component with "export default validator(strategy)(Component);"'
+    );
     class Validation extends React.Component {
-
-      constructor(props, context) {
-        super(props, context);
+      constructor(props) {
+        super(props);
+        this.componentRef = React.createRef(null);
         this.render = this.render.bind(this);
         this.validate = this.validate.bind(this);
         this.isValid = this.isValid.bind(this);
@@ -51,22 +54,39 @@ export default function validationMixin(strategy) {
        * @param {?Function} error-first callback containing the validation errors if any.
        */
       validate(/* [key], callback */) {
-        const fallback = arguments.length <= 1 && typeof arguments[0] === 'function' ? arguments[0] : undefined;
-        const key = arguments.length <= 1 && typeof arguments[0] === 'function' ? undefined : arguments[0];
-        const callback = arguments.length <= 2 && typeof arguments[1] === 'function' ? arguments[1] : fallback;
+        const fallback =
+          arguments.length <= 1 && typeof arguments[0] === "function"
+            ? arguments[0]
+            : undefined;
+        const key =
+          arguments.length <= 1 && typeof arguments[0] === "function"
+            ? undefined
+            : arguments[0];
+        const callback =
+          arguments.length <= 2 && typeof arguments[1] === "function"
+            ? arguments[1]
+            : fallback;
+        const data = result(this.componentRef.current, "getValidatorData");
+        const schema = result(this.componentRef.current, "validatorTypes");
 
-        const data = result(this.refs.component, 'getValidatorData');
-        const schema = result(this.refs.component, 'validatorTypes');
-
-        invariant(defined(data), 'Data was not provided to the Validator. Implement "getValidatorData" to return data.');
-        invariant(defined(schema), 'A schema was not provided to the Validator. Implement "validatorTypes" to return a validation schema.');
+        invariant(
+          defined(data),
+          'Data was not provided to the Validator. Implement "getValidatorData" to return data.'
+        );
+        invariant(
+          defined(schema),
+          'A schema was not provided to the Validator. Implement "validatorTypes" to return a validation schema.'
+        );
 
         const options = {
           key,
           prevErrors: this.state.errors,
         };
-        validator.validate(data, schema, options, nextErrors => {
-          this.setState({ errors: { ...nextErrors } }, this._invokeCallback.bind(this, key, callback));
+        validator.validate(data, schema, options, (nextErrors) => {
+          this.setState(
+            { errors: { ...nextErrors } },
+            this._invokeCallback.bind(this, key, callback)
+          );
         });
       }
 
@@ -75,9 +95,12 @@ export default function validationMixin(strategy) {
        * @return {void}
        */
       clearValidations(callback) {
-        return this.setState({
-          errors: {},
-        }, callback);
+        return this.setState(
+          {
+            errors: {},
+          },
+          callback
+        );
       }
 
       /* Check current validity for a specified key or entire form.
@@ -95,7 +118,7 @@ export default function validationMixin(strategy) {
        * @param {Function} error-first callback containing the validation errors if any.
        */
       _invokeCallback(key, callback) {
-        if (typeof callback !== 'function') {
+        if (typeof callback !== "function") {
           return;
         }
         if (this.isValid(key)) {
@@ -108,7 +131,7 @@ export default function validationMixin(strategy) {
       render() {
         return (
           <WrappedComponent
-            ref="component"
+            ref={this.componentRef}
             errors={this.state.errors}
             validate={this.validate}
             isValid={this.isValid}
